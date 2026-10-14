@@ -89,12 +89,13 @@ def render(stats, dark):
     rows += [entry(k + ":", v) for k, v in cfg["contact"]]
     rows += ["", header("— GitHub Stats")]
 
-    half = (WIDTH - 3) // 2
     s = stats
-    rows.append(entry("Repos:", f"{s['repos']} {{Contributed: {s['contrib']}}}", half) + span(dim, " | ")
-                + entry("Stars:", f"{s['stars']:,}", half))
-    rows.append(entry("Commits:", f"{s['commits']:,}", half) + span(dim, " | ")
-                + entry("Followers:", f"{s['followers']:,}", half))
+    left = [("Repos:", f"{s['repos']} {{Contributed: {s['contrib']}}}"), ("Commits:", f"{s['commits']:,}")]
+    right = [("Stars:", f"{s['stars']:,}"), ("Followers:", f"{s['followers']:,}")]
+    lw = max(len(k) + len(v) + 4 for k, v in left)  # shared widths keep the | aligned
+    rw = max(WIDTH - 3 - lw, max(len(k) + len(v) + 4 for k, v in right))
+    for (lk, lv), (rk, rv) in zip(left, right):
+        rows.append(entry(lk, lv, lw) + span(dim, " | ") + entry(rk, rv, rw))
     loc, add, dele = s["add"] - s["del"], f"{s['add']:,}++", f"{s['del']:,}--"
     tail = f"{loc:,} ( {add}, {dele} )"
     rows.append(span(key, "Lines of Code:")
